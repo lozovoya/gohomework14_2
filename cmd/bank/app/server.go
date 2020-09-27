@@ -1,10 +1,13 @@
 package app
 
 import (
+	"encoding/json"
+	"github.com/lozovoya/gohomework14_2/cmd/bank/app/dto"
 	"github.com/lozovoya/gohomework14_2/pkg/card"
 	"github.com/lozovoya/gohomework14_2/pkg/db"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 type Server struct {
@@ -24,68 +27,110 @@ func (s *Server) Init() {
 
 func (s *Server) getCards(w http.ResponseWriter, r *http.Request) {
 
-	log.Println("get cards")
-	cards := card.GetCards(s.DbSvc.Ctx, s.DbSvc.Pool, 3)
-	log.Println(cards)
+	cardid, err := strconv.Atoi(r.FormValue("owner_id"))
+	if err != nil {
+		log.Println(err)
+		return
+	}
 
-	//cards := card.GetCards(ctx)
+	cards := card.GetCards(s.DbSvc.Ctx, s.DbSvc.Pool, cardid)
+	if len(cards) == 0 {
+		log.Println("no cards available")
 
-	//cards := s.cardSvc.AllCards()
-	//if len(cards) == 0 {
-	//	log.Println("no cards available")
-	//	err := s.SendReply(w, cards, "no cards available")
-	//	if err != nil {
-	//		log.Println(err)
-	//	}
-	//	return
-	//}
-	//
-	//err := s.SendReply(w, cards, "")
-	//if err != nil {
-	//	log.Println(err)
-	//	return
-	//}
+		dtos := dto.MessageDTO{Message: "no cards available"}
+		respBody, err := json.Marshal(dtos)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		err = s.SendReply(w, respBody)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		return
+	}
+
+	dtos := make([]dto.CardDTO, len(cards))
+	for i, c := range cards {
+		dtos[i] = dto.CardDTO{
+			Id:      c.Id,
+			Number:  c.Number,
+			Balance: c.Balance,
+			Issuer:  c.Issuer,
+			Status:  c.Status,
+		}
+	}
+
+	respBody, err := json.Marshal(dtos)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	err = s.SendReply(w, respBody)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	return
 }
 
 func (s *Server) getTransactions(w http.ResponseWriter, r *http.Request) {
 
-	log.Println("get transactions")
-	transactions := card.GetTransactions(s.DbSvc.Ctx, s.DbSvc.Pool, 2)
-	log.Println(transactions)
+	cardid, err := strconv.Atoi(r.FormValue("card_id"))
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	transactions := card.GetTransactions(s.DbSvc.Ctx, s.DbSvc.Pool, cardid)
+	if len(transactions) == 0 {
+		log.Println("no transactions available")
+
+		dtos := dto.MessageDTO{
+			Message: "no transactions available",
+		}
+		respBody, err := json.Marshal(dtos)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		err = s.SendReply(w, respBody)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		return
+	}
+
+	dtos := make([]dto.TransactionDTO, len(transactions))
+	for i, t := range transactions {
+		dtos[i] = dto.TransactionDTO{
+			Id:          t.Id,
+			Amount:      t.Amount,
+			Category:    t.Category,
+			Description: t.Description,
+			Logo:        t.Logo,
+		}
+	}
+
+	respBody, err := json.Marshal(dtos)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	err = s.SendReply(w, respBody)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	return
 
 }
 
-func (s *Server) SendReply(w http.ResponseWriter, message string) (err error) {
-
-	var respBody []byte
-
-	//if len(cards) != 0 {
-	//	dtos := make([]*dto.CardDTO, len(cards))
-	//	for i, c := range cards {
-	//		dtos[i] = &dto.CardDTO{
-	//			Id:       c.Id,
-	//			Number:   c.Number,
-	//			Issuer:   c.Issuer,
-	//			HolderId: c.HolderId,
-	//			Type:     c.Type,
-	//		}
-	//	}
-	//
-	//	respBody, err = json.Marshal(dtos)
-	//	if err != nil {
-	//		log.Println(err)
-	//		return err
-	//	}
-	//} else {
-	//	var dtos = &dto.MessageDTO{
-	//		Message: message,
-	//	}
-	//	respBody, err = json.Marshal(dtos)
-	//	if err != nil {
-	//		log.Println(err)
-	//		return err
-	//	}
-	//}
+func (s *Server) SendReply(w http.ResponseWriter, respBody []byte) (err error) {
 
 	w.Header().Add("Content-Type", "application/json")
 	_, err = w.Write(respBody)
@@ -93,6 +138,5 @@ func (s *Server) SendReply(w http.ResponseWriter, message string) (err error) {
 		log.Println(err)
 		return err
 	}
-
 	return nil
 }

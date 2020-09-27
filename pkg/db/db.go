@@ -24,8 +24,8 @@ func (e DbError) Error() string {
 	return fmt.Sprintf("db error: %s", e.Err.Error())
 }
 
-func NewService(dsn string, ctx context.Context) (*Service, error) {
-	ctx = context.Background()
+func NewService(dsn string) (*Service, error) {
+	ctx := context.Background()
 	pool, err := pgxpool.Connect(ctx, dsn)
 	if err != nil {
 		log.Println(err)

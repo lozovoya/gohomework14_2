@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"github.com/lozovoya/gohomework14_2/cmd/bank/app"
 	"github.com/lozovoya/gohomework14_2/pkg/card"
 	"github.com/lozovoya/gohomework14_2/pkg/db"
@@ -41,8 +40,7 @@ func execute(addr string) (err error) {
 	cardSvc := card.NewService()
 
 	dsn := dbcon
-	ctx := context.Background()
-	dbSvc, err := db.NewService(dsn, ctx)
+	dbSvc, err := db.NewService(dsn)
 	if err != nil {
 		log.Println(err)
 		return err

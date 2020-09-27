@@ -73,8 +73,11 @@ func GetTransactions(ctx context.Context, pool *pgxpool.Pool, id int) (transacti
 	}
 	defer conn.Release()
 
-	rows, err := conn.Query(ctx,
-		"SELECT id, amount, category_id, description_id, logo_id FROM transactions WHERE card_id = $1 LIMIT 50", id)
+	rows, err := conn.Query(
+		ctx,
+		"SELECT t.id, t.amount, t.category_id, t.description_id, t.logo_id FROM transactions t JOIN categories ON t.category_id = categories.id JOIN descriptions ON  t.description_id = descriptions.id JOIN logos ON t.logo_id = logos.id    WHERE t.card_id = $1 LIMIT 50",
+		id,
+	)
 	if err != nil {
 		log.Println(err)
 		return
