@@ -42,8 +42,7 @@ func execute(addr string) (err error) {
 
 	dsn := dbcon
 	ctx := context.Background()
-	pool := db.InitDb(ctx, dsn)
-	dbSvc, err := db.NewService(dsn, ctx, pool)
+	dbSvc, err := db.NewService(dsn, ctx)
 	if err != nil {
 		log.Println(err)
 		return err
