@@ -13,7 +13,7 @@ services:
     volumes:
       - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
 
-#  bank:
-#    build: .
-#    ports:
-#      - "9999:9999"
+  bank:
+    build: .
+    ports:
+      - "9999:9999"

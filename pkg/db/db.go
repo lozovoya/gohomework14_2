@@ -2,7 +2,6 @@ package db
 
 import (
 	"context"
-	"fmt"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"log"
 )
@@ -10,18 +9,6 @@ import (
 type Service struct {
 	Pool *pgxpool.Pool
 	Ctx  context.Context
-}
-
-type DbError struct {
-	Err error
-}
-
-func NewDbError(err error) *DbError {
-	return &DbError{Err: err}
-}
-
-func (e DbError) Error() string {
-	return fmt.Sprintf("db error: %s", e.Err.Error())
 }
 
 func NewService(dsn string) (*Service, error) {

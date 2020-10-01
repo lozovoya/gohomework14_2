@@ -7,3 +7,5 @@ RUN go build -o bank ./cmd/bank
 FROM alpine:3.7
 COPY --from=build /app/bank /app/bank
 ENTRYPOINT ["/app/bank"]
+
+EXPOSE 9999

@@ -45,6 +45,7 @@ func execute(addr string) (err error) {
 		log.Println(err)
 		return err
 	}
+	defer dbSvc.Pool.Close()
 
 	application := app.NewServer(mux, cardSvc, dbSvc)
 
