@@ -101,3 +101,65 @@ func GetTransactions(ctx context.Context, pool *pgxpool.Pool, id int) (transacti
 	}
 	return transactions
 }
+
+func GetMonMostFreq(ctx context.Context, pool *pgxpool.Pool, id int) (catid int64, count int64) {
+
+	conn, err := pool.Acquire(ctx)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer conn.Release()
+
+	rows, err := conn.Query(
+		ctx,
+		"SELECT  category_id, count(category_id) count FROM transactions  WHERE card_id = $1 GROUP BY category_id ORDER BY count DESC LIMIT 1",
+		id,
+	)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&catid, &count)
+	}
+	err = rows.Err()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	return catid, count
+}
+
+func GetMonMostValue(ctx context.Context, pool *pgxpool.Pool, id int) (catid int64, count int64) {
+
+	conn, err := pool.Acquire(ctx)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer conn.Release()
+
+	rows, err := conn.Query(
+		ctx,
+		"SELECT category_id, sum(amount) total FROM transactions WHERE card_id = $1 GROUP BY category_id ORDER BY total ASC LIMIT 1",
+		id,
+	)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&catid, &count)
+	}
+	err = rows.Err()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	return catid, count
+}

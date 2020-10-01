@@ -10,3 +10,14 @@ GET http://localhost:9999/getTransactions?card_id=2 HTTP/1.1
 ###
 GET http://localhost:9999/getTransactions?card_id=4 HTTP/1.1
 
+###
+GET http://localhost:9999/getMonMostFreq?card_id=2 HTTP/1.1
+
+###
+GET http://localhost:9999/getMonMostFreq?card_id=0 HTTP/1.1
+
+###
+GET http://localhost:9999/getMonMostValue?card_id=2 HTTP/1.1
+
+###
+GET http://localhost:9999/getMonMostValue?card_id=0 HTTP/1.1

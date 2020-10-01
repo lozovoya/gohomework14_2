@@ -23,6 +23,8 @@ func NewServer(mux *http.ServeMux, cardSvc *card.Service, dbSvc *db.Service) *Se
 func (s *Server) Init() {
 	s.mux.HandleFunc("/getCards", s.getCards)
 	s.mux.HandleFunc("/getTransactions", s.getTransactions)
+	s.mux.HandleFunc("/getMonMostFreq", s.getMonMostFreq)
+	s.mux.HandleFunc("/getMonMostValue", s.getMonMostValue)
 }
 
 func (s *Server) getCards(w http.ResponseWriter, r *http.Request) {
@@ -128,6 +130,62 @@ func (s *Server) getTransactions(w http.ResponseWriter, r *http.Request) {
 	}
 	return
 
+}
+
+func (s *Server) getMonMostFreq(w http.ResponseWriter, r *http.Request) {
+
+	cardid, err := strconv.Atoi(r.FormValue("card_id"))
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	catid, count := card.GetMonMostFreq(s.DbSvc.Ctx, s.DbSvc.Pool, cardid)
+
+	dtos := dto.MonMostDTO{
+		CatId: catid,
+		Count: count,
+	}
+
+	respBody, err := json.Marshal(dtos)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	err = s.SendReply(w, respBody)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	return
+}
+
+func (s *Server) getMonMostValue(w http.ResponseWriter, r *http.Request) {
+
+	cardid, err := strconv.Atoi(r.FormValue("card_id"))
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	catid, count := card.GetMonMostValue(s.DbSvc.Ctx, s.DbSvc.Pool, cardid)
+
+	dtos := dto.MonMostDTO{
+		CatId: catid,
+		Count: count,
+	}
+
+	respBody, err := json.Marshal(dtos)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	err = s.SendReply(w, respBody)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	return
 }
 
 func (s *Server) SendReply(w http.ResponseWriter, respBody []byte) (err error) {

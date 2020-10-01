@@ -2,11 +2,6 @@
 version: '3.8'
 
 services:
-  bankapp:
-    build: .
-    ports:
-      - "9999:9999"
-
   bankdb:
     image: postgres:12.3-alpine
     ports:
@@ -17,3 +12,8 @@ services:
       - POSTGRES_DB=db
     volumes:
       - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
+
+#  bank:
+#    build: .
+#    ports:
+#      - "9999:9999"

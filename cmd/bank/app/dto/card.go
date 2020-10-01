@@ -19,3 +19,8 @@ type TransactionDTO struct {
 type MessageDTO struct {
 	Message string `json:"message"`
 }
+
+type MonMostDTO struct {
+	CatId int64 `json:"cat_id"`
+	Count int64 `json:"count"`
+}
