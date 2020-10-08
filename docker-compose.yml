@@ -15,5 +15,7 @@ services:
 
   bank:
     build: .
+    depends_on:
+      - bankdb
     ports:
       - "9999:9999"
