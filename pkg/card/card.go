@@ -23,15 +23,16 @@ type Transaction struct {
 }
 
 type Service struct {
-	Cards       []*Card
-	Transaction []*Transaction
+	Pool *pgxpool.Pool
 }
 
-func NewService() *Service { return &Service{} }
+func NewService(pool *pgxpool.Pool) *Service {
+	return &Service{Pool: pool}
+}
 
-func GetCards(ctx context.Context, pool *pgxpool.Pool, id int) (cards []*Card) {
+func (s *Service) GetCards(ctx context.Context, id int) (cards []*Card) {
 
-	conn, err := pool.Acquire(ctx)
+	conn, err := s.Pool.Acquire(ctx)
 	if err != nil {
 		log.Println(err)
 		return
@@ -64,9 +65,9 @@ func GetCards(ctx context.Context, pool *pgxpool.Pool, id int) (cards []*Card) {
 	return cards
 }
 
-func GetTransactions(ctx context.Context, pool *pgxpool.Pool, id int) (transactions []*Transaction) {
+func (s *Service) GetTransactions(ctx context.Context, id int) (transactions []*Transaction) {
 
-	conn, err := pool.Acquire(ctx)
+	conn, err := s.Pool.Acquire(ctx)
 	if err != nil {
 		log.Println(err)
 		return
@@ -102,9 +103,9 @@ func GetTransactions(ctx context.Context, pool *pgxpool.Pool, id int) (transacti
 	return transactions
 }
 
-func GetMonMostFreq(ctx context.Context, pool *pgxpool.Pool, id int) (catid int64, count int64) {
+func (s *Service) GetMonMostFreq(ctx context.Context, id int) (catid int64, count int64) {
 
-	conn, err := pool.Acquire(ctx)
+	conn, err := s.Pool.Acquire(ctx)
 	if err != nil {
 		log.Println(err)
 		return
@@ -133,9 +134,9 @@ func GetMonMostFreq(ctx context.Context, pool *pgxpool.Pool, id int) (catid int6
 	return catid, count
 }
 
-func GetMonMostValue(ctx context.Context, pool *pgxpool.Pool, id int) (catid int64, count int64) {
+func (s *Service) GetMonMostValue(ctx context.Context, id int) (catid int64, count int64) {
 
-	conn, err := pool.Acquire(ctx)
+	conn, err := s.Pool.Acquire(ctx)
 	if err != nil {
 		log.Println(err)
 		return
