@@ -1,10 +1,10 @@
 package app
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/lozovoya/gohomework14_2/cmd/bank/app/dto"
 	"github.com/lozovoya/gohomework14_2/pkg/card"
-	"github.com/lozovoya/gohomework14_2/pkg/db"
 	"log"
 	"net/http"
 	"strconv"
@@ -13,11 +13,10 @@ import (
 type Server struct {
 	mux     *http.ServeMux
 	CardSvc *card.Service
-	DbSvc   *db.Service
 }
 
-func NewServer(mux *http.ServeMux, cardSvc *card.Service, dbSvc *db.Service) *Server {
-	return &Server{mux: mux, CardSvc: cardSvc, DbSvc: dbSvc}
+func NewServer(mux *http.ServeMux, cardSvc *card.Service) *Server {
+	return &Server{mux: mux, CardSvc: cardSvc}
 }
 
 func (s *Server) Init() {
@@ -35,7 +34,7 @@ func (s *Server) getCards(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cards := card.GetCards(s.DbSvc.Ctx, s.DbSvc.Pool, cardid)
+	cards := s.CardSvc.GetCards(context.Background(), cardid)
 	if len(cards) == 0 {
 		log.Println("no cards available")
 
@@ -86,7 +85,7 @@ func (s *Server) getTransactions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	transactions := card.GetTransactions(s.DbSvc.Ctx, s.DbSvc.Pool, cardid)
+	transactions := s.CardSvc.GetTransactions(context.Background(), cardid)
 	if len(transactions) == 0 {
 		log.Println("no transactions available")
 
@@ -140,7 +139,7 @@ func (s *Server) getMonMostFreq(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	catid, count := card.GetMonMostFreq(s.DbSvc.Ctx, s.DbSvc.Pool, cardid)
+	catid, count := s.CardSvc.GetMonMostFreq(context.Background(), cardid)
 
 	dtos := dto.MonMostDTO{
 		CatId: catid,
@@ -168,7 +167,7 @@ func (s *Server) getMonMostValue(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	catid, count := card.GetMonMostValue(s.DbSvc.Ctx, s.DbSvc.Pool, cardid)
+	catid, count := s.CardSvc.GetMonMostValue(context.Background(), cardid)
 
 	dtos := dto.MonMostDTO{
 		CatId: catid,

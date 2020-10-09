@@ -1,9 +1,10 @@
 package main
 
 import (
+	"context"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/lozovoya/gohomework14_2/cmd/bank/app"
 	"github.com/lozovoya/gohomework14_2/pkg/card"
-	"github.com/lozovoya/gohomework14_2/pkg/db"
 	"log"
 	"net"
 	"net/http"
@@ -37,17 +38,16 @@ func main() {
 func execute(addr string) (err error) {
 
 	mux := http.NewServeMux()
-	cardSvc := card.NewService()
-
 	dsn := dbcon
-	dbSvc, err := db.NewService(dsn)
+	pool, err := pgxpool.Connect(context.Background(), dsn)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
-	defer dbSvc.Pool.Close()
+	defer pool.Close()
+	cardSvc := card.NewService(pool)
 
-	application := app.NewServer(mux, cardSvc, dbSvc)
+	application := app.NewServer(mux, cardSvc)
 
 	application.Init()
 	server := &http.Server{
